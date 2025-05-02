@@ -1,691 +1,504 @@
-<html lang="id" class="scroll-smooth">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Solana Memecoin Quality Listings</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .price-up {
-      color: #10b981;
-      animation: pulseGreen 1s infinite;
-    }
-    .price-down {
-      color: #ef4444;
-      animation: pulseRed 1s infinite;
-    }
-    @keyframes pulseGreen {
-      0% { opacity: 1; }
-      50% { opacity: 0.7; }
-      100% { opacity: 1; }
-    }
-    @keyframes pulseRed {
-      0% { opacity: 1; }
-      50% { opacity: 0.7; }
-      100% { opacity: 1; }
-    }
-    .fa-thumbtack {
-      transform: rotate(45deg);
-      font-size: 0.8rem;
-    }
-    .address-display {
-      font-family: monospace;
-      background: rgba(0,0,0,0.2);
-      padding: 2px 6px;
-      border-radius: 4px;
-      cursor: pointer;
-      position: relative;
-      font-size: 0.9rem;
-    }
-    .address-display:hover::after {
-      content: attr(data-full);
-      position: absolute;
-      bottom: 100%;
-      left: 0;
-      background: #333;
-      color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
-      white-space: nowrap;
-      z-index: 10;
-      font-size: 0.8rem;
-    }
-    .copy-feedback {
-      animation: fadeOut 1.5s forwards;
-    }
-    @keyframes fadeOut {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-    .alternative-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-    }
-    .alternative-btn {
-      flex: 1;
-      padding: 6px;
-      font-size: 0.75rem;
-      text-align: center;
-      border-radius: 4px;
-    }
-    #error-container {
-      animation: fadeIn 0.3s ease-out;
-      margin-bottom: 1rem;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .premium-token {
-      position: relative;
-      overflow: hidden;
-    }
-    .premium-token::before {
-      content: "HOT PICK";
-      position: absolute;
-      top: 10px;
-      right: -25px;
-      width: 100px;
-      background: linear-gradient(45deg, #f59e0b, #ef4444);
-      color: white;
-      text-align: center;
-      font-size: 0.7rem;
-      font-weight: bold;
-      transform: rotate(45deg);
-      z-index: 2;
-    }
-    .good-token {
-      border-left: 4px solid #10b981;
-    }
-    .fair-token {
-      border-left: 4px solid #f59e0b;
-    }
-    .bad-token {
-      border-left: 4px solid #ef4444;
-    }
-    .criteria-pass {
-      color: #10b981;
-    }
-    .criteria-fail {
-      color: #ef4444;
-    }
-    .criteria-icon {
-      margin-right: 4px;
-    }
-    .pair-info {
-      background: rgba(255,255,255,0.05);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      margin-top: 4px;
-    }
-    .loading-spinner {
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Pump.fun Good Coins Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6e45e2;
+            --primary-light: #9d8bff;
+            --positive: #10b981;
+            --negative: #ef4444;
+            --neutral: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .subtitle {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .controls {
+            background-color: var(--card-bg);
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: var(--text-light);
+        }
+        
+        input, select {
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: inherit;
+            background-color: #f8fafc;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background-color: #5d3ad1;
+            transform: translateY(-1px);
+        }
+        
+        button.secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .coins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .coin-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .coin-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+        }
+        
+        .coin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .coin-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+        
+        .coin-symbol {
+            background-color: #e2e8f0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .coin-score {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .coin-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .detail-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .positive {
+            color: var(--positive);
+        }
+        
+        .negative {
+            color: var(--negative);
+        }
+        
+        .neutral {
+            color: var(--neutral);
+        }
+        
+        .contract-address {
+            background-color: #f1f5f9;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .copy-btn {
+            background-color: #e2e8f0;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        
+        .copy-btn:hover {
+            background-color: #cbd5e1;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+        
+        .last-updated {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            grid-column: 1 / -1;
+        }
+        
+        @media (max-width: 768px) {
+            .filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .coins-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
-  <header class="bg-gradient-to-r from-purple-700 via-pink-600 to-red-600 p-4 shadow-md sticky top-0 z-50">
-    <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center">
-      <h1 class="text-2xl font-bold tracking-wide">Solana Memecoin Pairs</h1>
-      <p class="mt-2 sm:mt-0 text-sm opacity-80">Daftar token pair berkualitas siap dibeli (≤5 menit, likuiditas ≥$20k)</p>
-    </div>
-  </header>
-
-  <main class="container mx-auto flex-grow p-4 flex flex-col gap-6">
-    <!-- Error container -->
-    <div id="error-container" class="hidden"></div>
-    
-    <section id="new-coins-section" class="bg-gray-800 rounded-lg p-4 shadow-lg">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">Token Pairs Berkualitas</h2>
-        <div class="flex gap-2">
-          <button id="btn-refresh" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm flex items-center gap-1">
-            <i class="fas fa-sync-alt"></i> Refresh
-          </button>
-          <button id="btn-clear" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm flex items-center gap-1">
-            <i class="fas fa-trash"></i> Hapus Semua
-          </button>
-        </div>
-      </div>
-      
-      <div class="bg-gray-700 rounded-lg p-3 mb-4">
-        <h3 class="font-semibold mb-2">Kriteria Pair Berkualitas:</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
-          <div><i class="fas fa-check-circle criteria-icon criteria-pass"></i>Likuiditas ≥$20k</div>
-          <div><i class="fas fa-check-circle criteria-icon criteria-pass"></i>Tax ≤5%</div>
-          <div><i class="fas fa-check-circle criteria-icon criteria-pass"></i>Holders ≥100</div>
-          <div><i class="fas fa-check-circle criteria-icon criteria-pass"></i>LP Locked</div>
-          <div><i class="fas fa-check-circle criteria-icon criteria-pass"></i>Ownership Renounced</div>
-          <div><i class="fas fa-check-circle criteria-icon criteria-pass"></i>Umur ≤5 menit</div>
-          <div><i class="fas fa-check-circle criteria-icon criteria-pass"></i>Owner Sehat</div>
-          <div><i class="fas fa-check-circle criteria-icon criteria-pass"></i>Kepemilikan Owner <20%</div>
-        </div>
-      </div>
-      
-      <div id="coins-list" class="grid gap-4">
-        <div class="bg-gray-700 rounded-lg p-8 text-center">
-          <i class="fas fa-spinner loading-spinner text-4xl text-blue-500 mb-4"></i>
-          <h3 class="text-lg font-semibold">Memuat data token pair...</h3>
-          <p class="text-gray-400 mt-2">Mengambil data terbaru dari DexScreener</p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="bg-gray-800 text-gray-400 text-center p-4 text-sm">
-    by rafli - Quality memecoins only
-  </footer>
-
-  <script>
-    // Data storage
-    let allCoins = [];
-    let priceUpdateInterval;
-    let lastFetchTime = 0;
-    const MIN_REFRESH_INTERVAL = 10000; // 10 seconds between API calls
-
-    // Error handling
-    function handleError(message, coinAddress = null) {
-      const errorContainer = document.getElementById('error-container');
-      errorContainer.classList.remove('hidden');
-      
-      let errorMessage = `
-        <div class="bg-red-900 text-red-100 p-4 rounded-lg">
-          <div class="flex justify-between items-start">
-            <div>
-              <i class="fas fa-exclamation-triangle mr-2"></i>
-              <strong>Error:</strong> ${message}
-            </div>
-            ${coinAddress ? `
-            <button onclick="copyToClipboard('${coinAddress}')" 
-              class="bg-red-700 hover:bg-red-600 px-2 py-1 rounded text-xs">
-              <i class="fas fa-copy"></i> Copy Address
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-rocket"></i> Pump.fun Good Coins</h1>
+            <p class="subtitle">Realtime tracking of high-quality meme coins with contract addresses</p>
+        </header>
+        
+        <div class="controls">
+            <button onclick="fetchCoins()">
+                <i class="fas fa-sync-alt"></i> Refresh Coins
             </button>
-            ` : ''}
-          </div>
-          <div class="mt-2 text-sm">
-            Please wait and try again later. If the problem persists after 1-5 minutes,
-            <a href="#" class="underline">contact support</a>.
-          </div>
+            
+            <div class="filters" id="filters">
+                <div class="filter-group">
+                    <label for="minLiquidity">Min Liquidity (ETH)</label>
+                    <input type="number" id="minLiquidity" value="1" step="0.1" min="0">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="maxAge">Max Age (minutes)</label>
+                    <input type="number" id="maxAge" value="120" min="1">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="minHolders">Min Holders</label>
+                    <input type="number" id="minHolders" value="30" min="1">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="minScore">Min Score</label>
+                    <input type="number" id="minScore" value="15" min="0">
+                </div>
+            </div>
         </div>
-      `;
-      
-      errorContainer.innerHTML = errorMessage;
-    }
+        
+        <div class="coins-grid" id="coinsGrid">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading coins...
+            </div>
+        </div>
+        
+        <div class="last-updated" id="lastUpdated"></div>
+    </div>
 
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        const buttons = document.querySelectorAll('[onclick*="copyToClipboard"]');
-        buttons.forEach(btn => {
-          if (btn.getAttribute('onclick').includes(text)) {
-            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            setTimeout(() => {
-              btn.innerHTML = '<i class="fas fa-copy"></i> Copy Address';
-            }, 2000);
-          }
+    <script>
+        // Configuration
+        const API_URL = '/api/coins';
+        const UPDATE_INTERVAL = 30000; // 30 seconds
+        
+        // DOM Elements
+        const coinsGrid = document.getElementById('coinsGrid');
+        const lastUpdatedElement = document.getElementById('lastUpdated');
+        
+        // Initial load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchCoins();
+            setInterval(fetchCoins, UPDATE_INTERVAL);
         });
-      });
-    }
-
-    // Kriteria dengan visual indicator
-    function evaluateToken(coin) {
-      const checks = {
-        liquidity: coin.liquidity >= 20000,
-        tax: (coin.buyTax <= 5 && coin.sellTax <= 5),
-        holders: coin.holders >= 100,
-        lock: coin.lpLocked,
-        renounced: coin.renounced,
-        age: coin.ageMinutes <= 5,
-        ownerHealthy: coin.ownerHealth === 'healthy',
-        notWhale: coin.ownerHoldings < 20
-      };
-      
-      const score = Object.values(checks).filter(Boolean).length;
-      const isPremium = score >= 7 && coin.liquidity >= 50000 && coin.holders >= 150;
-      
-      return { checks, score, isPremium };
-    }
-
-    // Format persentase perubahan harga
-    function formatPercentageChange(change) {
-      if (change === null || change === undefined) return 'N/A';
-      const fixed = change.toFixed(2);
-      return `${fixed > 0 ? '+' : ''}${fixed}%`;
-    }
-
-    // Sort and render coins
-    function sortAndRenderCoins() {
-      // Filter out bad quality tokens (score < 4)
-      allCoins = allCoins.filter(coin => {
-        const evaluation = evaluateToken(coin);
-        return evaluation.score >= 4;
-      });
-      
-      allCoins.sort((a, b) => {
-        const evalA = evaluateToken(a);
-        const evalB = evaluateToken(b);
         
-        // Premium tokens first
-        if (evalA.isPremium && !evalB.isPremium) return -1;
-        if (!evalA.isPremium && evalB.isPremium) return 1;
-        
-        // Then by score
-        if (evalA.score > evalB.score) return -1;
-        if (evalA.score < evalB.score) return 1;
-        
-        // Then by liquidity
-        if (a.liquidity > b.liquidity) return -1;
-        if (a.liquidity < b.liquidity) return 1;
-        
-        // Then by age
-        return a.ageMinutes - b.ageMinutes;
-      });
-      
-      renderAllData();
-    }
-
-    // Render coin card dengan semua fitur baru
-    function renderCoinCard(coin) {
-      const evaluation = evaluateToken(coin);
-      
-      // Determine card class based on evaluation
-      let cardClass = 'bg-gray-700 rounded-lg p-4 shadow-md relative';
-      if (evaluation.isPremium) {
-        cardClass += ' premium-token';
-      } else if (evaluation.score >= 6) {
-        cardClass += ' good-token';
-      } else if (evaluation.score >= 4) {
-        cardClass += ' fair-token';
-      } else {
-        cardClass += ' bad-token';
-      }
-      
-      const card = document.createElement('div');
-      card.className = cardClass;
-      
-      // Header dengan nama dan score
-      const header = document.createElement('div');
-      header.className = 'flex justify-between items-center mb-2';
-      
-      const name = document.createElement('h3');
-      name.className = 'text-lg font-semibold';
-      name.textContent = `${coin.name} (${coin.symbol})`;
-      
-      // Tombol Pin
-      const pinBtn = document.createElement('button');
-      pinBtn.className = `ml-2 p-1 rounded-full ${coin.isPinned ? 'bg-yellow-600 text-yellow-100' : 'bg-gray-600 text-gray-300'}`;
-      pinBtn.innerHTML = '<i class="fas fa-thumbtack"></i>';
-      pinBtn.title = coin.isPinned ? 'Unpin' : 'Pin';
-      pinBtn.onclick = (e) => {
-        e.stopPropagation();
-        coin.isPinned = !coin.isPinned;
-        sortAndRenderCoins();
-      };
-      
-      const scoreBadge = document.createElement('span');
-      scoreBadge.className = `px-2 py-1 rounded-full text-xs font-bold ${
-        evaluation.score >= 7 ? 'bg-green-900 text-green-300' : 
-        evaluation.score >= 5 ? 'bg-yellow-600 text-yellow-100' : 'bg-red-900 text-red-300'
-      }`;
-      scoreBadge.textContent = `${evaluation.score}/8`;
-      scoreBadge.title = `${evaluation.score} dari 8 kriteria terpenuhi`;
-      
-      header.appendChild(name);
-      header.appendChild(pinBtn);
-      header.appendChild(scoreBadge);
-      
-      // Address Section
-      const addressWrapper = document.createElement('div');
-      addressWrapper.className = 'flex items-center justify-between bg-gray-600 rounded px-2 py-1 mb-2 text-sm';
-
-      const addressDisplay = document.createElement('span');
-      addressDisplay.className = 'address-display';
-      addressDisplay.textContent = `${coin.address.substring(0, 6)}...${coin.address.slice(-4)}`;
-      addressDisplay.setAttribute('data-full', coin.address);
-      addressDisplay.onclick = () => {
-        copyToClipboard(coin.address);
-      };
-
-      const copyBtn = document.createElement('button');
-      copyBtn.className = 'bg-gray-500 hover:bg-gray-400 px-2 py-0.5 rounded text-xs ml-2';
-      copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
-      copyBtn.onclick = (e) => {
-        e.stopPropagation();
-        copyToClipboard(coin.address);
-      };
-
-      addressWrapper.appendChild(addressDisplay);
-      addressWrapper.appendChild(copyBtn);
-      
-      // Pair info
-      const pairInfo = document.createElement('div');
-      pairInfo.className = 'pair-info mb-2';
-      pairInfo.innerHTML = `
-        <div><strong>Pair:</strong> ${coin.symbol}/SOL</div>
-        <div><strong>Contract:</strong> ${coin.address.substring(0, 6)}...${coin.address.slice(-4)}</div>
-      `;
-      
-      // Detail utama dengan harga realtime
-      const details = document.createElement('div');
-      details.className = 'grid grid-cols-2 gap-2 text-sm mb-3';
-      
-      const priceChange = coin.priceChange || 0;
-      const priceChangeClass = priceChange > 0 ? 'price-up' : priceChange < 0 ? 'price-down' : '';
-      
-      details.innerHTML = `
-        <div class="flex items-center">
-          <span>Harga:</span>
-          <span class="ml-1 font-mono">$${coin.price.toFixed(6)}</span>
-        </div>
-        <div class="${priceChangeClass} flex items-center">
-          ${priceChange !== 0 ? `
-            <i class="fas ${priceChange > 0 ? 'fa-arrow-up' : 'fa-arrow-down'} mr-1"></i>
-            <span>${formatPercentageChange(priceChange)}</span>
-          ` : '<span class="text-gray-400">±0%</span>'}
-        </div>
-        <div>Likuiditas: $${coin.liquidity.toLocaleString()}</div>
-        <div>Umur: ${coin.ageMinutes} menit</div>
-        <div>Holders: ${coin.holders}</div>
-        <div>Buyers: ${coin.buyers} | Sellers: ${coin.sellers}</div>
-      `;
-      
-      // Kriteria Token
-      const criteria = document.createElement('div');
-      criteria.className = 'bg-gray-600 rounded p-2 mb-3 text-sm grid grid-cols-2 gap-2';
-      
-      criteria.innerHTML = `
-        <div class="${evaluation.checks.liquidity ? 'criteria-pass' : 'criteria-fail'}">
-          <i class="fas ${evaluation.checks.liquidity ? 'fa-check-circle' : 'fa-times-circle'} criteria-icon"></i>
-          Likuiditas $${coin.liquidity.toLocaleString()}
-        </div>
-        <div class="${evaluation.checks.tax ? 'criteria-pass' : 'criteria-fail'}">
-          <i class="fas ${evaluation.checks.tax ? 'fa-check-circle' : 'fa-times-circle'} criteria-icon"></i>
-          Tax: ${coin.buyTax}%/${coin.sellTax}%
-        </div>
-        <div class="${evaluation.checks.holders ? 'criteria-pass' : 'criteria-fail'}">
-          <i class="fas ${evaluation.checks.holders ? 'fa-check-circle' : 'fa-times-circle'} criteria-icon"></i>
-          ${coin.holders} Holders
-        </div>
-        <div class="${evaluation.checks.lock ? 'criteria-pass' : 'criteria-fail'}">
-          <i class="fas ${evaluation.checks.lock ? 'fa-check-circle' : 'fa-times-circle'} criteria-icon"></i>
-          ${coin.lpLocked ? 'LP Locked' : 'LP Unlocked'}
-        </div>
-        <div class="${evaluation.checks.renounced ? 'criteria-pass' : 'criteria-fail'}">
-          <i class="fas ${evaluation.checks.renounced ? 'fa-check-circle' : 'fa-times-circle'} criteria-icon"></i>
-          ${coin.renounced ? 'Renounced' : 'Not Renounced'}
-        </div>
-        <div class="${evaluation.checks.age ? 'criteria-pass' : 'criteria-fail'}">
-          <i class="fas ${evaluation.checks.age ? 'fa-check-circle' : 'fa-times-circle'} criteria-icon"></i>
-          ${coin.ageMinutes}m old
-        </div>
-        <div class="${evaluation.checks.ownerHealthy ? 'criteria-pass' : 'criteria-fail'}">
-          <i class="fas ${evaluation.checks.ownerHealthy ? 'fa-check-circle' : 'fa-times-circle'} criteria-icon"></i>
-          Owner ${coin.ownerHealth === 'healthy' ? 'Sehat' : 'Tidak Sehat'}
-        </div>
-        <div class="${evaluation.checks.notWhale ? 'criteria-pass' : 'criteria-fail'}">
-          <i class="fas ${evaluation.checks.notWhale ? 'fa-check-circle' : 'fa-times-circle'} criteria-icon"></i>
-          Owner ${coin.ownerHoldings}%
-        </div>
-      `;
-      
-      // Action buttons
-      const actions = document.createElement('div');
-      actions.className = 'flex flex-col gap-2';
-      
-      const mainActions = document.createElement('div');
-      mainActions.className = 'flex gap-2';
-      
-      const tradeBtn = document.createElement('a');
-      tradeBtn.className = 'bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-white text-sm flex-1 text-center font-bold';
-      tradeBtn.innerHTML = '<i class="fas fa-bolt mr-1"></i> BUY NOW';
-      tradeBtn.href = `https://www.dexscreener.com/solana/${coin.address}`;
-      tradeBtn.target = '_blank';
-
-      const chartBtn = document.createElement('a');
-      chartBtn.className = 'bg-gray-600 hover:bg-gray-700 px-3 py-2 rounded text-white text-sm flex-1 text-center';
-      chartBtn.innerHTML = '<i class="fas fa-chart-line mr-1"></i> Chart';
-      chartBtn.href = `https://dexscreener.com/solana/${coin.address}`;
-      chartBtn.target = '_blank';
-
-      mainActions.appendChild(tradeBtn);
-      mainActions.appendChild(chartBtn);
-      actions.appendChild(mainActions);
-      
-      // Additional links
-      const additionalLinks = document.createElement('div');
-      additionalLinks.className = 'flex gap-2 text-xs';
-      additionalLinks.innerHTML = `
-        <a href="https://solscan.io/token/${coin.address}" target="_blank" class="bg-gray-500 hover:bg-gray-600 px-2 py-1 rounded flex-1 text-center">
-          <i class="fas fa-search mr-1"></i> Solscan
-        </a>
-        <a href="https://www.birdeye.so/token/${coin.address}?chain=solana" target="_blank" class="bg-gray-500 hover:bg-gray-600 px-2 py-1 rounded flex-1 text-center">
-          <i class="fas fa-eye mr-1"></i> Birdeye
-        </a>
-      `;
-      actions.appendChild(additionalLinks);
-      
-      card.appendChild(header);
-      card.appendChild(addressWrapper);
-      card.appendChild(pairInfo);
-      card.appendChild(details);
-      card.appendChild(criteria);
-      card.appendChild(actions);
-      
-      return card;
-    }
-
-    // Update harga secara realtime
-    async function updatePrices() {
-      if (allCoins.length === 0) return;
-      
-      try {
-        // Get updated prices for all coins
-        const addresses = allCoins.map(coin => coin.address).join(',');
-        const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${addresses}`);
-        const data = await response.json();
-        
-        if (!data.pairs || !Array.isArray(data.pairs)) {
-          throw new Error('Invalid response from DexScreener');
+        // Fetch coins from API
+        async function fetchCoins() {
+            try {
+                // Get filter values
+                const minLiquidity = parseFloat(document.getElementById('minLiquidity').value) || 0;
+                const maxAge = parseInt(document.getElementById('maxAge').value) || 120;
+                const minHolders = parseInt(document.getElementById('minHolders').value) || 10;
+                const minScore = parseInt(document.getElementById('minScore').value) || 10;
+                
+                // Show loading state
+                coinsGrid.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading coins...
+                    </div>
+                `;
+                
+                // Fetch coins with query parameters
+                const response = await fetch(`${API_URL}?minLiquidity=${minLiquidity}&maxAge=${maxAge}&minHolders=${minHolders}&minScore=${minScore}`);
+                const { success, data: coins, error } = await response.json();
+                
+                if (!success) {
+                    throw new Error(error || 'Failed to fetch coins');
+                }
+                
+                displayCoins(coins);
+                updateLastUpdated();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                coinsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Error loading coins: ${error.message}</p>
+                        <button onclick="fetchCoins()">
+                            <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
+                    </div>
+                `;
+            }
         }
         
-        // Update prices based on API response
-        allCoins.forEach(coin => {
-          if (!coin.isPinned) {
-            const pair = data.pairs.find(p => p.baseToken.address === coin.address);
-            if (pair) {
-              const newPrice = parseFloat(pair.priceUsd);
-              const newPriceChange = parseFloat(pair.priceChange.h24);
-              
-              coin.price = newPrice;
-              coin.priceChange = newPriceChange;
-              coin.liquidity = parseFloat(pair.liquidity.usd);
-              
-              // Simulate some activity
-              if (newPriceChange > 0) {
-                coin.buyers += Math.floor(Math.random() * 3);
-              } else if (newPriceChange < 0) {
-                coin.sellers += Math.floor(Math.random() * 3);
-              }
-              
-              // Gradually increase holders
-              if (Math.random() > 0.7) {
-                coin.holders += Math.floor(Math.random() * 5);
-              }
-            }
-          }
-        });
-        
-        sortAndRenderCoins();
-      } catch (error) {
-        console.error('Error updating prices:', error);
-        // Fallback to simulated price changes if API fails
-        allCoins.forEach(coin => {
-          if (!coin.isPinned) {
-            const volatility = coin.ageMinutes < 2 ? 0.3 : 0.15;
-            const change = (Math.random() - 0.5) * volatility;
-            const newPrice = Math.max(0.000001, coin.price * (1 + change));
-            
-            coin.priceChange = change * 100;
-            coin.price = newPrice;
-            
-            if (change > 0) {
-              coin.buyers += Math.floor(Math.random() * 3);
-            } else {
-              coin.sellers += Math.floor(Math.random() * 3);
+        // Display coins in the grid
+        function displayCoins(coins) {
+            if (!coins || coins.length === 0) {
+                coinsGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-info-circle"></i>
+                        <p>No coins match your current filters</p>
+                        <button class="secondary" onclick="document.getElementById('minLiquidity').value = 0; fetchCoins()">
+                            Reset Filters
+                        </button>
+                    </div>
+                `;
+                return;
             }
             
-            if (Math.random() > 0.7) {
-              coin.holders += Math.floor(Math.random() * 5);
-            }
-          }
-        });
-        
-        sortAndRenderCoins();
-      }
-    }
-
-    // Render semua data
-    function renderAllData() {
-      const container = document.getElementById('coins-list');
-      container.innerHTML = '';
-      
-      if (allCoins.length === 0) {
-        container.innerHTML = `
-          <div class="bg-gray-700 rounded-lg p-8 text-center">
-            <i class="fas fa-coins text-4xl text-gray-500 mb-4"></i>
-            <h3 class="text-lg font-semibold">Tidak ada token pair berkualitas saat ini</h3>
-            <p class="text-gray-400 mt-2">Token pair baru akan muncul secara otomatis ketika memenuhi kriteria</p>
-          </div>
-        `;
-        return;
-      }
-      
-      allCoins.forEach(coin => {
-        container.appendChild(renderCoinCard(coin));
-      });
-    }
-
-    // Fetch new pairs from DexScreener
-    async function fetchNewPairs() {
-      const now = Date.now();
-      if (now - lastFetchTime < MIN_REFRESH_INTERVAL) {
-        return;
-      }
-      
-      lastFetchTime = now;
-      
-      try {
-        document.getElementById('btn-refresh').innerHTML = '<i class="fas fa-spinner loading-spinner"></i> Loading...';
-        
-        // First get the latest pairs from DexScreener
-        const response = await fetch('https://api.dexscreener.com/latest/dex/pairs/solana?limit=50');
-        const data = await response.json();
-        
-        if (!data.pairs || !Array.isArray(data.pairs)) {
-          throw new Error('Invalid response from DexScreener');
+            coinsGrid.innerHTML = '';
+            
+            coins.forEach(coin => {
+                const trendClass = coin.priceChange > 0 ? 'positive' : 
+                                 coin.priceChange < 0 ? 'negative' : 'neutral';
+                const trendIcon = coin.priceChange > 0 ? '▲' : 
+                                coin.priceChange < 0 ? '▼' : '➔';
+                
+                const coinElement = document.createElement('div');
+                coinElement.className = 'coin-card';
+                coinElement.innerHTML = `
+                    <div class="coin-header">
+                        <div>
+                            <span class="coin-name">${coin.name}</span>
+                            <span class="coin-symbol">${coin.symbol}</span>
+                        </div>
+                        <div class="coin-score">${coin.score}</div>
+                    </div>
+                    
+                    <div class="coin-details">
+                        <div class="detail-group">
+                            <span class="detail-label">Price</span>
+                            <span class="detail-value">
+                                ${coin.price.toFixed(6)} ETH
+                                <span class="${trendClass}">${trendIcon} ${Math.abs(coin.priceChange).toFixed(2)}%</span>
+                            </span>
+                        </div>
+                        
+                        <div class="detail-group">
+                            <span class="detail-label">Liquidity</span>
+                            <span class="detail-value">
+                                <i class="fas fa-water"></i> ${coin.liquidity.toFixed(2)} ETH
+                            </span>
+                        </div>
+                        
+                        <div class="detail-group">
+                            <span class="detail-label">Age</span>
+                            <span class="detail-value">
+                                <i class="far fa-clock"></i> ${Math.round(coin.ageInMinutes)} min
+                            </span>
+                        </div>
+                        
+                        <div class="detail-group">
+                            <span class="detail-label">Holders</span>
+                            <span class="detail-value">
+                                <i class="fas fa-users"></i> ${coin.holders.length}
+                            </span>
+                        </div>
+                        
+                        <div class="detail-group">
+                            <span class="detail-label">Initial Price</span>
+                            <span class="detail-value">
+                                ${coin.initialPrice.toFixed(6)} ETH
+                            </span>
+                        </div>
+                        
+                        <div class="detail-group">
+                            <span class="detail-label">Volume</span>
+                            <span class="detail-value">
+                                <i class="fas fa-chart-line"></i> ${coin.volume ? coin.volume.toFixed(2) : 'N/A'} ETH
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="contract-address">
+                        <span>${coin.contractAddress || 'Contract not available'}</span>
+                        ${coin.contractAddress ? `
+                            <button class="copy-btn" onclick="copyToClipboard('${coin.contractAddress}')">
+                                <i class="far fa-copy"></i> Copy
+                            </button>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="actions">
+                        <a href="https://pump.fun/${coin.id}" target="_blank" class="action-btn secondary">
+                            <i class="fas fa-external-link-alt"></i> Pump.fun
+                        </a>
+                        ${coin.contractUrl ? `
+                            <a href="${coin.contractUrl}" target="_blank" class="action-btn secondary">
+                                <i class="fas fa-file-contract"></i> Contract
+                            </a>
+                        ` : ''}
+                    </div>
+                `;
+                
+                coinsGrid.appendChild(coinElement);
+            });
         }
         
-        // Filter for new pairs (age < 5 minutes) with liquidity > $20k
-        const newPairs = data.pairs.filter(pair => {
-          if (!pair.pairCreatedAt) return false;
-          const pairAge = (Date.now() - pair.pairCreatedAt) / (1000 * 60);
-          return pairAge <= 5 && pair.liquidity?.usd >= 20000;
-        });
-        
-        // Process new pairs
-        const newCoins = [];
-        
-        for (const pair of newPairs) {
-          // Skip if we already have this pair
-          if (allCoins.some(coin => coin.address === pair.baseToken.address)) {
-            continue;
-          }
-          
-          // Create new coin object with real data
-          const pairAge = (Date.now() - pair.pairCreatedAt) / (1000 * 60);
-          
-          // Estimate taxes (DexScreener doesn't provide this directly)
-          // In a real implementation, you would need to query the blockchain
-          const buyTax = Math.min(5, Math.floor(Math.random() * 6)); // Simulate 0-5% tax
-          const sellTax = Math.min(5, Math.floor(Math.random() * 6)); // Simulate 0-5% tax
-          
-          const newCoin = {
-            name: pair.baseToken.name,
-            symbol: pair.baseToken.symbol,
-            address: pair.baseToken.address,
-            price: parseFloat(pair.priceUsd),
-            priceChange: parseFloat(pair.priceChange.h24),
-            liquidity: parseFloat(pair.liquidity.usd),
-            ageMinutes: pairAge.toFixed(1),
-            holders: parseInt(pair.baseToken.holders || Math.floor(Math.random() * 200) + 50),
-            buyers: Math.floor(Math.random() * 500),
-            sellers: Math.floor(Math.random() * 300),
-            buyTax: buyTax,
-            sellTax: sellTax,
-            lpLocked: Math.random() > 0.3, // 70% chance locked
-            renounced: Math.random() > 0.3, // 70% chance renounced
-            ownerHealth: Math.random() > 0.2 ? 'healthy' : 'unhealthy',
-            ownerHoldings: Math.floor(Math.random() * 15),
-            isPinned: false
-          };
-          
-          newCoins.push(newCoin);
+        // Update last updated time
+        function updateLastUpdated() {
+            const now = new Date();
+            lastUpdatedElement.innerHTML = `
+                <i class="far fa-clock"></i> Last updated: ${now.toLocaleTimeString()}
+                <br>Next update in 30 seconds
+            `;
         }
         
-        // Add new coins to the beginning of the list
-        allCoins = [...newCoins, ...allCoins];
-        
-        // Remove some old unpinned tokens if we have too many
-        if (allCoins.length > 20) {
-          const unpinnedIndex = allCoins.findIndex(coin => !coin.isPinned);
-          if (unpinnedIndex !== -1) {
-            allCoins.splice(unpinnedIndex, 1);
-          }
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Contract address copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
         }
-        
-        sortAndRenderCoins();
-      } catch (error) {
-        handleError('Gagal mengambil data dari DexScreener: ' + error.message);
-        console.error('Fetch error:', error);
-      } finally {
-        document.getElementById('btn-refresh').innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
-      }
-    }
-
-    // Hapus semua data
-    document.getElementById('btn-clear').addEventListener('click', () => {
-      if (confirm('Apakah Anda yakin ingin menghapus semua data token pair?')) {
-        allCoins = [];
-        document.getElementById('error-container').classList.add('hidden');
-        sortAndRenderCoins();
-      }
-    });
-
-    // Refresh data
-    document.getElementById('btn-refresh').addEventListener('click', fetchNewPairs);
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      // Initial fetch
-      fetchNewPairs();
-      
-      // Fetch new pairs every 30 seconds
-      setInterval(fetchNewPairs, 30000);
-      
-      // Update prices every 5 seconds
-      priceUpdateInterval = setInterval(updatePrices, 5000);
-    });
-
-    // Clean up interval on page exit
-    window.addEventListener('beforeunload', () => {
-      clearInterval(priceUpdateInterval);
-    });
-  </script>
+    </script>
 </body>
 </html>

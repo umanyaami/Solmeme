@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solana Memecoin Quality Listings</title>
+</head>
+<body style="background:#111;color:white;font-family:sans-serif;padding:20px">
+  <h1>Solana Memecoin Pairs</h1>
+  <button onclick="loadData()">Ambil Data</button>
+  <pre id="output" style="white-space:pre-wrap;background:#222;padding:10px;border-radius:6px;margin-top:20px"></pre>
+
+  <script>
+    async function loadData() {
+      const out = document.getElementById("output");
+      out.textContent = "Loading...";
+      try {
+        const response = await fetch('/api/fetchPairs');
+        const data = await response.json();
+        out.textContent = JSON.stringify(data.pairs.slice(0, 3), null, 2); // tampilkan 3 token pertama
+      } catch (e) {
+        out.textContent = "Gagal fetch data: " + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
